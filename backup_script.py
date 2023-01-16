@@ -12,12 +12,11 @@ if __name__ == "__main__":
     Path(path.join(backupsPath, "gdrivelink")).mkdir(parents=True, exist_ok=True)
     if len(backupsPathContents) > 0:
         oldestBackup = backupsPathContents[0]
-        print("rsync -vaxcH --progress --exclude=/backup/ --compare-dest=/backup/"+oldestBackup+"/. /. /backup/"+targetFolderName+"/")
         system("rsync -vaxcH --progress --exclude=/backup/ --compare-dest=/backup/"+oldestBackup+"/. /. /backup/"+targetFolderName+"/")
-        system("diff -rq / /backup/2023-01-16_22:20:05 | grep \"Only in /backup/\" >> /backup/"+targetFolderName+"/delete.txt")
+        system("diff -rq /backup/"+oldestBackup+" / | grep \"Only in /backup/"+oldestBackup+"\" >> /backup/"+targetFolderName+"/delete.txt")
         with open("/backup/"+targetFolderName+"/delete.txt", "r") as f:
             deletions = f.read()
-        deletions = deletions.replace("Only in /backup/"+targetFolderName, "").replace(": ", "")
+        deletions = deletions.replace("Only in /backup/"+oldestBackup, "").replace(": ", "/")
         remove("/backup/"+targetFolderName+"/delete.txt")
         with open("/backup/"+targetFolderName+"/delete.txt", "w") as f:
             f.write(deletions)
